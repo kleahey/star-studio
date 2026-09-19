@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0b1026">
+<title>Star Studio · Grown-ups</title>
+<style>
+  :root{ --bg:#0f172a; --card:#1e293b; --ink:#f1f5f9; --muted:#94a3b8; --line:#334155; --accent:#a78bfa; --gold:#fbbf24; --ok:#4ade80; --bad:#f87171; }
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.45 ui-rounded,system-ui,-apple-system,sans-serif;padding:calc(14px + env(safe-area-inset-top)) 16px 40px}
+  .wrap{max-width:860px;margin:0 auto} header{display:flex;align-items:center;gap:12px;margin-bottom:14px} header h1{font-size:24px;margin:0;flex:1}
+  a.back,button{font:inherit;font-weight:800;border:0;border-radius:999px;padding:12px 20px;background:var(--accent);color:#1e1b4b;text-decoration:none;cursor:pointer}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px} .tabs button{background:var(--card);color:var(--ink);border:1px solid var(--line)} .tabs button.on{background:var(--accent);color:#1e1b4b}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px 18px;margin-bottom:14px} h2{font-size:19px;margin:14px 0 6px;color:var(--gold)} h2:first-child{margin-top:0}
+  table{width:100%;border-collapse:collapse} td,th{padding:7px 8px;border-top:1px solid var(--line);vertical-align:top;text-align:left} th{color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.04em} b{color:#c4b5fd}
+  .trap{border-left:5px solid var(--bad);padding:6px 12px;margin:8px 0;background:rgba(248,113,113,.08);border-radius:0 12px 12px 0} .hook{border-left:5px solid var(--gold);padding:6px 12px;margin:8px 0;background:rgba(251,191,36,.08);border-radius:0 12px 12px 0}
+  .kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px} .kv .card{margin:0;text-align:center} .num{font-size:30px;font-weight:900} .muted{color:var(--muted)} .small{font-size:14px}
+  .row{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--line)} .danger{background:var(--bad);color:#450a0a} label.sw{display:flex;align-items:center;gap:12px;font-weight:700} input[type=checkbox]{width:26px;height:26px}
+</style>
+</head>
+<body><div class="wrap">
+<header><h1>👀 Grown-ups</h1><a class="back" href="./">← Back to the game</a></header>
+<div class="tabs" id="tabs"></div><div id="view"></div>
+</div>
+<script type="module">
+import { FACTS } from './src/space/facts.js';
+import { WORLDS } from './src/worlds.js';
+const KEY='star-studio.v1'; let S={}; try{ S=JSON.parse(localStorage.getItem(KEY)||'{}'); }catch(e){} S=Object.assign({dust:0,levels:{},stats:{},days:[],stickers:[],unlockAll:false,answered:0,correct:0,bestCombo:0},S);
+const save=()=>localStorage.setItem(KEY,JSON.stringify(S));
+const SKILL={ 'pv-place':'Find the digit in a named place','pv-value':'Value of a digit','pv-placename':'Name the place of a digit','pv-written':'Written form → digits (zeros)','pv-expanded':'Expanded form','cmp-symbol':'Compare with > < =','cmp-order':'Order numbers',
+  'round':'Rounding to a named place','estimate':'Estimation strategies','subtract-zeros':'Subtracting across zeros','add-carry':'Adding with carrying','story':'Word problems','story-steps':'One step or multistep?','story-single':'Single-step word problems','story-multi':'Multistep word problems',
+  'p-bigger':'Which planet is bigger?' };
+const factName=Object.fromEntries(FACTS.map(f=>[f.id,f.name]));
+const label=k=>SKILL[k]||factName[k]||({rot:'Rotate vs. revolve',trio:'Earth, moon or sun',kind:'Terrestrial, gas giant or Pluto',tide:'High or low tides'}[k.split('-')[0]]+' ('+k.split('-').slice(1).join(' ')+')');
+const TABS={ progress:'Progress', math:'Math key', space:'Science key', settings:'Settings' }; let tab='progress';
+
+const MATH=`<div class="card"><h2>Math Unit 1 · test Fri 9/25 · SOL 4.NS.1, 4.NS.2, 4.CE.1</h2>
+<p class="small muted">The game makes fresh numbers every time, so there is no answer list. This is the method she should be using. The teachers flagged two class weak spots: <b>choosing which place to round to</b>, and <b>subtraction</b>. Levels 6 and 8 target those.</p>
+<h2>Place value</h2><table><tr><th>Millions</th><th>Thousands</th><th>Ones</th></tr><tr><td>hundred millions · ten millions · millions</td><td>hundred thousands · ten thousands · thousands</td><td>hundreds · tens · ones</td></tr></table>
+<p><b>Place</b> = where the digit sits. <b>Value</b> = what it is worth there. In 630,154,827 the 4 is in the <b>thousands</b> place and its value is <b>4,000</b>. Three forms: <b>standard</b>, <b>written</b>, <b>expanded</b>.</p>
+<h2>Comparing</h2><p><b>&gt;</b> greater than, <b>&lt;</b> less than, <b>=</b> equal, <b>≠</b> not equal. Line up by place, walk left to right, the <b>first place that differs decides</b>. More digits beats fewer.</p>
+<h2>Estimating: three strategies she must know by name</h2><table><tr><th>Strategy</th><th>What you do</th><th>25 + 23 + 21</th></tr>
+<tr><td><b>Rounding</b></td><td>round each number to a place</td><td>30 + 20 + 20 = 70</td></tr><tr><td><b>Compatible numbers</b></td><td>swap in friendly numbers</td><td>25 + 20 + 20 = 65</td></tr><tr><td><b>Front-end</b></td><td>keep only the first digit</td><td>20 + 20 + 20 = 60</td></tr></table>
+<h2>Word problems</h2><p><b>Single-step</b> = one operation. <b>Multistep</b> = more than one. Bar diagram: whole on top, parts underneath.</p>
+<h2>Where she will drop points</h2>
+<div class="trap"><b>Rounding to the wrong place.</b> Find the named digit, look at the ONE neighbour to its right, ignore the rest. 25,499 to the nearest thousand is 25,000.</div>
+<div class="trap"><b>The 9 that rolls over.</b> 3,962 to the nearest hundred is 4,000.</div><div class="trap"><b>Zeros as place holders.</b> "Sixty million, two hundred thousand, nine" is 60,200,009.</div>
+<div class="trap"><b>Subtracting across zeros.</b> 4,000 − 1,276. Habit: check by adding back.</div><div class="trap"><b>Stopping after step one</b> of a multistep problem.</div><div class="trap"><b>Ten thousands vs. ten millions.</b> Make her say the period name.</div>
+<h2>Hooks</h2><div class="hook"><b>Rounding is a dance count-in: "5, 6, 7, 8" means step UP</b> (9 too). 0 to 4, stay put.</div><div class="hook"><b>Every comma has a last name:</b> million, thousand.</div><div class="hook"><b>Front-end = front door only.</b></div></div>`;
+const SPACE=`<div class="card"><h2>Science Unit 1 · Solar System · test Tue 9/29</h2>
+<h2>The two verbs</h2><table><tr><td><b>Rotate</b></td><td>spin on its own axis</td></tr><tr><td><b>Revolve</b></td><td>travel around something else</td></tr></table>
+<h2>Earth, moon, sun</h2><table><tr><th></th><th>Movement</th><th>Other facts</th></tr>
+<tr><td><b>Earth</b></td><td>rotates every <b>24 hours</b> → day and night; revolves around the sun every <b>365¼ days</b> → one year</td><td>large amounts of <b>water</b>; <b>diversity of organisms</b>; <b>oxygen-rich atmosphere</b>; atmosphere <b>blocks most of the sun's rays</b></td></tr>
+<tr><td><b>Moon</b></td><td>revolves around Earth every <b>28 days</b></td><td><b>small rocky satellite</b>; <b>temperature extremes</b>; <b>no atmosphere or life</b>; very little water; about <b>four</b> fit across Earth; <b>one-eightieth</b> of Earth's mass</td></tr>
+<tr><td><b>Sun</b></td><td><b>center</b> of our solar system</td><td><b>average-sized yellow star</b>; <b>110 times</b> Earth's diameter; about <b>4.6 billion</b> years old</td></tr></table>
+<p>Early astronomers believed <b>Earth</b> was the center. We now know it is the <b>sun</b>.</p>
+<h2>Seasons</h2><p><b>Axial tilt</b> (an <b>imaginary</b> axis) is the reason for the seasons. The hemisphere hit <b>more directly</b> has summer. Hemispheres are <b>opposite</b>: Australia has winter when we have summer. Spring and autumn: rays hit <b>neither</b> directly, so it is milder.</p>
+<h2>Moon phases</h2><p>Sunlight <b>reflects</b> off the moon. <b>New → First Quarter → Full → Last (Third) Quarter → New.</b> First quarter = right half lit. Last = left.</p>
+<h2>Tides</h2><table><tr><th></th><th>Phase</th><th>Earth, moon, sun</th></tr><tr><td><b>High</b></td><td>full and new</td><td>in a line</td></tr><tr><td><b>Low</b></td><td>first and last quarter</td><td>at right angles</td></tr></table>
+<p class="small muted">The guide simplifies: strictly, full and new moons give the biggest tidal range. Teach the guide's wording.</p>
+<h2>Planets</h2><p><b>Biggest → smallest:</b> Jupiter, Saturn, Uranus, Neptune, Earth, Venus, Mars, Mercury<br><b>From the sun:</b> Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune</p>
+<table><tr><td><b>Terrestrial</b></td><td>Mercury, Venus, Earth, Mars. Rocky.</td></tr><tr><td><b>Gas giants</b></td><td>Jupiter, Saturn, Uranus, Neptune. Mostly gases; the four largest.</td></tr><tr><td><b>Pluto</b></td><td>Not a planet: too small, irregular orbit.</td></tr></table>
+<h2>Where she will drop points</h2><div class="trap"><b>Rotate vs. revolve.</b></div><div class="trap"><b>Two planet orders.</b> The size tail is Earth, Venus, Mars, Mercury.</div><div class="trap"><b>Seasons are tilt, not distance.</b></div><div class="trap"><b>Tides pairing.</b> A new moon is dark and still means high.</div><div class="trap"><b>Opposite hemispheres.</b></div>
+<h2>Hooks</h2><div class="hook"><b>Rotate = pirouette. Revolve = circle your partner.</b> Have her do both around a lamp.</div><div class="hook"><b>From the sun:</b> My Very Excellent Mom Just Served Us Nachos.</div><div class="hook"><b>By size:</b> Just Stand Up Now, Everyone: Very Marvelous Move! MArs before MErcury.</div><div class="hook"><b>Tides:</b> a line pulls HIGH; an L shape is Low.</div></div>`;
+
+function progress(){ const acc=S.answered?Math.round(100*S.correct/S.answered):0; const fd=d=>d?new Date(d).toLocaleString([], {weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'never';
+  const worlds=WORLDS.map(w=>`<h2>${w.emoji} ${w.name}</h2>`+w.levels.map((l,i)=>{ const L=S.levels[l.id]; return `<div class="row"><span>${i+1}. ${l.name} <span class="muted small">${l.skill}</span></span><span>${L?'⭐'.repeat(L.stars)+' <span class="muted small">'+L.plays+' play'+(L.plays===1?'':'s')+'</span>':'<span class="muted">not played</span>'}</span></div>`; }).join('')).join('');
+  const missed=Object.entries(S.stats).filter(([,v])=>v.miss>0).sort((a,b)=>b[1].miss-a[1].miss).slice(0,14).map(([k,v])=>`<div class="row"><span>${label(k)}</span><span class="muted small" style="white-space:nowrap">${v.miss} missed · ${v.ok} right</span></div>`).join('')||'<p class="muted">No misses yet.</p>';
+  return `<div class="kv"><div class="card"><div class="num">${S.answered}</div><div class="muted small">questions answered</div></div><div class="card"><div class="num">${acc}%</div><div class="muted small">right on the first try</div></div><div class="card"><div class="num">${S.days.length}</div><div class="muted small">days played</div></div><div class="card"><div class="num">${S.bestCombo}</div><div class="muted small">best combo</div></div></div>
+  <div class="card" style="margin-top:14px"><h2>Most missed</h2>${missed}<p class="small muted">A missed item comes back later in the same level. Math items come back with new numbers. This list is what to bring back to the learner profile after the test.</p></div>
+  <div class="card">${worlds}</div><div class="card small muted">First played: ${fd(S.first)}<br>Last played: ${fd(S.last)}<br>✨ ${S.dust.toLocaleString()} stardust · ${S.stickers.length} stickers</div>`; }
+function settings(){ return `<div class="card"><label class="sw"><input type="checkbox" id="unlock" ${S.unlockAll?'checked':''}> Unlock every level</label><p class="small muted">Normally a level opens when the one before it is finished. Turn this on to jump straight to a skill, for example Rounding Hill (level 6) or Column Cruncher (level 8) before Friday.</p></div>
+  <div class="card"><h2>Start over</h2><p class="small muted">Clears every star, sticker and score on this iPad.</p><button class="danger" id="reset">Reset all progress</button></div>
+  <div class="card small muted">Star Studio runs entirely on this device. No account, no network calls after install, no analytics. Progress lives in this browser's storage; clearing Safari data clears it. Built with Phaser 3 (MIT).</div>`; }
+function render(){ document.getElementById('tabs').innerHTML=Object.entries(TABS).map(([k,l])=>`<button class="${k===tab?'on':''}" data-t="${k}">${l}</button>`).join('');
+  document.getElementById('view').innerHTML=tab==='progress'?progress():tab==='math'?MATH:tab==='space'?SPACE:settings();
+  const u=document.getElementById('unlock'); if(u) u.onchange=()=>{ S.unlockAll=u.checked; save(); };
+  const r=document.getElementById('reset'); if(r) r.onclick=()=>{ if(confirm('Reset ALL progress on this device? This cannot be undone.')){ localStorage.removeItem(KEY); location.reload(); } }; }
+document.getElementById('tabs').onclick=e=>{ const b=e.target.closest('button'); if(b){ tab=b.dataset.t; render(); } };
+render();
+</script>
+</body>
+</html>
