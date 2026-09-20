@@ -35,14 +35,14 @@ export function button(s,x,y,w,h,label,color,cb,o={}){
 }
 
 export function backdrop(s,theme='hub'){
-  const stops={ hub:['#0f172a','#312e81','#7c3aed'], space:['#050816','#1e1b4b','#581c87'], math:['#0c1445','#4c1d95','#be185d'] }[theme];
+  const stops={ hub:['#0f172a','#312e81','#7c3aed'], space:['#050816','#1e1b4b','#581c87'], math:['#0c1445','#4c1d95','#be185d'], va:['#052e16','#14532d','#0f766e'] }[theme];
   const key='bg-'+theme;
   if(!s.textures.exists(key)){ const t=s.textures.createCanvas(key,W,H), ctx=t.getContext(); const g=ctx.createLinearGradient(0,0,W*.35,H);
     stops.forEach((c,i)=>g.addColorStop(i/(stops.length-1),c)); ctx.fillStyle=g; ctx.fillRect(0,0,W,H); t.refresh(); }
   s.add.image(W/2,H/2,key);
   for(let i=0;i<55;i++){ const d=s.add.image(Math.random()*W,Math.random()*H,'dot').setScale(.1+Math.random()*.25).setAlpha(.15+Math.random()*.5);
     s.tweens.add({targets:d,alpha:.05,duration:900+Math.random()*2200,yoyo:true,repeat:-1,delay:Math.random()*2000}); }
-  const deco={ hub:['✨','⭐','🪐','➕'], space:['🪐','☄️','🌙','✨'], math:['➕','➖','🔢','✨','＝'] }[theme];
+  const deco={ hub:['✨','⭐','🪐','➕'], space:['🪐','☄️','🌙','✨'], math:['➕','➖','🔢','✨','＝'], va:['🌽','🍂','🗺️','✨','🫐'] }[theme];
   for(let i=0;i<6;i++){ const e=txt(s,Math.random()*W,Math.random()*H,deco[i%deco.length],60+Math.random()*60,'#fff',{shadow:false}).setAlpha(.1).setAngle(Math.random()*40-20);
     s.tweens.add({targets:e,y:e.y-60-Math.random()*80,x:e.x+Math.random()*80-40,angle:e.angle+20,duration:7000+Math.random()*6000,yoyo:true,repeat:-1,ease:'Sine.inOut'}); }
 }

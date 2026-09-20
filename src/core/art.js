@@ -61,12 +61,33 @@ export function seasonsArt(flip, labels){
   return { svg: svg(W,H,s), spots, W, H };
 }
 
+// Virginia language-group map, numbered 1-2-3 like the study guide. Schematic: shapes simplified, positions right.
+export const VA_SPOTS={ alg:[592,262,58], sio:[430,225,95], iro:[165,296,62] };
+export function vaMapArt(labels){
+  const W=730,H=360, T=(x,y,t,size,fill,anchor,w)=>`<text x="${x}" y="${y}" font-family="Arial Rounded MT Bold, Helvetica, Arial, sans-serif" font-weight="${w||'bold'}" font-size="${size}" fill="${fill}" text-anchor="${anchor||'middle'}">${t}</text>`;
+  const state=['570,100 536,152 538,232 541,265 530,321 529,336 667,336 656,296 631,291 623,262 627,226 631,194 582,158 558,126 571,89','515,45 537,68 571,89 570,100 536,152 538,232 541,265 530,321 529,336 318,336 346,299 382,262 418,226 462,173 496,121 512,79',
+    '480,36 515,45 512,79 496,121 462,173 418,226 382,262 346,299 318,336 228,333 270,289 320,247 362,200 410,147 450,95','213,262 303,242 369,147 418,89 463,32 480,36 450,95 410,147 362,200 320,247 270,289 228,333 75,331 125,312','26,331 115,284 166,232 213,262 125,312 75,331'];
+  let s=`<polygon points="631,181 686,181 668,205 660,242 658,276 656,296 631,291 623,262 627,226 631,194" fill="#7dd3fc" opacity=".55"/><polygon points="667,336 656,296 658,276 677,257 697,220 718,181 730,181 730,360 667,360" fill="#7dd3fc" opacity=".4"/>`;
+  s+=state.map(p=>`<polygon points="${p}" fill="#ec4899" stroke="#ec4899" stroke-width="2"/>`).join('');
+  s+=`<polygon points="${state[0]}" fill="#22d3ee" stroke="#0b1026" stroke-width="3"/><polygon points="686,181 718,181 697,220 677,257 658,276 660,242 668,205" fill="#22d3ee" stroke="#0b1026" stroke-width="3"/>`;
+  s+=`<polygon points="26,331 115,284 166,232 213,262 303,242 300,335 228,333 75,331" fill="#4ade80" stroke="#0b1026" stroke-width="3"/>`;
+  s+=`<polyline points="582,222 599,247 614,262 623,265" fill="none" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round"/>`;
+  const num=(k,n)=>`<circle cx="${VA_SPOTS[k][0]}" cy="${VA_SPOTS[k][1]}" r="20" fill="#0b1026"/>`+T(VA_SPOTS[k][0],VA_SPOTS[k][1]+8,n,24,'#fff');
+  s+=num('alg',1)+num('sio',2)+num('iro',3)+T(28,30,'N &#8593;',18,'#cbd5e1','start')+T(702,352,'Atlantic',13,'#bae6fd','end');
+  if(labels){ const L=(x,y,a,b,c,col)=>T(x,y,a,21,col)+T(x,y+22,b,17,'#fff')+T(x,y+42,c,15,'#cbd5e1',null,'normal');
+    s+=L(590,52,'ALGONQUIAN','Powhatan &#183; Pamunkey','Coastal Plain','#67e8f9')+`<path d="M592,104 L594,236" stroke="#67e8f9" stroke-width="2.5"/>`;
+    s+=L(300,58,'SIOUAN','Monacan','Piedmont + Blue Ridge','#f9a8d4')+`<path d="M318,108 L410,205" stroke="#f9a8d4" stroke-width="2.5"/>`;
+    s+=L(112,170,'IROQUOIAN','Nottoway &#183; Meherrin','Southwestern Virginia','#86efac')+`<path d="M120,222 L150,272" stroke="#86efac" stroke-width="2.5"/>`; }
+  return svg(W,H,s);
+}
+
 export function allArt(){
   const out=[]; const add=(k,s,w,h)=>out.push({key:k, svg:s, w, h});
   for(const [k,s] of Object.entries(PLANET_ART)) add('pl-'+k,s,256,256);
   for(const [k,s] of Object.entries(PHASE_ART)) add('ph-'+k,s,256,256);
   for(const [k,s] of Object.entries(ICON_ART)) add('ic-'+k,s,256,256);
   add('sun',SUN_ART,256,256); add('moonrock',MOONROCK_ART,256,256); add('ruby',RUBY_ART,300,300);
+  add('vamap-0',vaMapArt(false),1460,720); add('vamap-1',vaMapArt(true),1460,720);
   for(const f of [0,1]) for(const l of [0,1]) add(`seasons-${f}-${l}`, seasonsArt(!!f,!!l).svg, 1000, 600);
   return out;
 }

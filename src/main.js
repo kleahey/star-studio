@@ -10,7 +10,7 @@ const unlocked = (w,i) => Store.s.unlockAll || i===0 || Store.stars(w.levels[i-1
 
 class Boot extends Phaser.Scene{
   constructor(){ super('Boot'); }
-  preload(){ for(const a of allArt()) this.load.svg(a.key,'data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(a.svg))),{width:a.w,height:a.h}); }
+  preload(){ for(const a of allArt()) this.load.svg(a.key,'data:image/svg+xml;charset=utf-8;base64,'+btoa(unescape(encodeURIComponent(a.svg))),{width:a.w,height:a.h}); }
   create(){
     const g=this.make.graphics({add:false});
     g.fillStyle(0xffffff,1); g.fillCircle(16,16,16); g.generateTexture('dot',32,32); g.clear();
@@ -25,39 +25,40 @@ class Hub extends Phaser.Scene{
   constructor(){ super('Hub'); }
   create(){
     fadeIn(this); backdrop(this,'hub'); const S=Store.s, rk=Store.rank(), today=Store.roundsToday(), streak=Store.streak();
-    txt(this,W/2,95,'⭐ STAR STUDIO ⭐',62,'#fde68a');
-    const r=ruby(this,170,300,250); popIn(this,r);
+    txt(this,W/2,80,'⭐ STAR STUDIO ⭐',58,'#fde68a');
+    const r=ruby(this,160,250,210); popIn(this,r);
     const line = S.answered===0 ? 'Hi Caroline! I\'m Ruby. Pick a world and let\'s go!' : today===0 ? 'Welcome back, Caroline! Ready for today\'s first level?' : today>=3 ? `${today} levels today. Superstar! 🌟` : 'Nice work! One more level?';
-    bubble(this,660,290,700,line,40);
+    bubble(this,650,245,700,line,38);
     // stat pills
-    const stat=(x,label,val,w=300)=>{ const c=this.add.container(x,500); c.add(pill(this,w,96,0xffffff,.12,48,0xffffff,2)); c.add(txt(this,0,-2,`${label} ${val}`,40)); return c; };
+    const stat=(x,label,val,w=300)=>{ const c=this.add.container(x,420); c.add(pill(this,w,96,0xffffff,.12,48,0xffffff,2)); c.add(txt(this,0,-2,`${label} ${val}`,40)); return c; };
     stat(210,'✨',S.dust.toLocaleString()); stat(540,'🔥',`${streak} day${streak===1?'':'s'}`); stat(870,'🎯',`${Math.min(today,3)}/3 today`);
     // rank bar
-    const pct = rk.next ? (S.dust-rk.base)/(rk.next-rk.base) : 1; txt(this,60,590,`Rank ${rk.n} · ${rk.name}`,32,'#c7d2fe',{ox:0});
-    if(rk.next) txt(this,W-60,590,`${(rk.next-S.dust).toLocaleString()} ✨ to next`,28,'#a5b4fc',{ox:1});
-    const bar=this.add.graphics(); bar.fillStyle(0xffffff,.15); bar.fillRoundedRect(60,620,960,22,11); bar.fillStyle(C.gold,1); bar.fillRoundedRect(60,620,Math.max(22,960*pct),22,11);
+    const pct = rk.next ? (S.dust-rk.base)/(rk.next-rk.base) : 1; txt(this,60,505,`Rank ${rk.n} · ${rk.name}`,32,'#c7d2fe',{ox:0});
+    if(rk.next) txt(this,W-60,505,`${(rk.next-S.dust).toLocaleString()} ✨ to next`,28,'#a5b4fc',{ox:1});
+    const bar=this.add.graphics(); bar.fillStyle(0xffffff,.15); bar.fillRoundedRect(60,532,960,22,11); bar.fillStyle(C.gold,1); bar.fillRoundedRect(60,532,Math.max(22,960*pct),22,11);
     // world cards
-    WORLDS.forEach((w,i)=>{ const y=820+i*320, c=this.add.container(W/2,y); const sh=pill(this,960,280,0,.35,56); sh.y=12;
-      const body=pill(this,960,280,w.color,1,56), hi=pill(this,930,100,0xffffff,.13,50); hi.y=-78;
+    const CH=WORLDS.length>2?220:280, y0=WORLDS.length>2?700:820, step=CH+28;
+    WORLDS.forEach((w,i)=>{ const y=y0+i*step, c=this.add.container(W/2,y); const sh=pill(this,960,CH,0,.35,52); sh.y=12;
+      const body=pill(this,960,CH,w.color,1,52), hi=pill(this,930,CH*.34,0xffffff,.13,46); hi.y=-CH*.28;
       const max=w.levels.length*3, got=worldStars(w);
-      c.add([sh,body,hi,txt(this,-360,-6,w.emoji,150,'#fff',{shadow:false}),txt(this,-240,-66,w.name,58,'#fff',{ox:0}),txt(this,-240,2,w.sub,32,'#fef3c7',{ox:0})]);
-      const pb=this.add.graphics(); pb.fillStyle(0x000000,.28); pb.fillRoundedRect(-240,50,560,26,13); pb.fillStyle(0xfde68a,1); pb.fillRoundedRect(-240,50,Math.max(26,560*got/max),26,13); c.add(pb);
-      c.add(txt(this,340,63,`${got}/${max} ⭐`,32,'#fff',{ox:0})); c.add(txt(this,410,-50,'›',110,'#fff'));
-      c.setSize(960,280).setInteractive({useHandCursor:true}); c.on('pointerdown',()=>{ sfx.tap(); this.tweens.add({targets:c,scale:.96,duration:80,yoyo:true,onComplete:()=>go(this,'Map',{world:w})}); });
+      c.add([sh,body,hi,txt(this,-370,-4,w.emoji,CH*.5,'#fff',{shadow:false}),txt(this,-260,-CH*.24,w.name,52,'#fff',{ox:0}),txt(this,-260,CH*.02,w.sub,29,'#fef3c7',{ox:0})]);
+      const pb=this.add.graphics(); pb.fillStyle(0x000000,.28); pb.fillRoundedRect(-260,CH*.2,560,24,12); pb.fillStyle(0xfde68a,1); pb.fillRoundedRect(-260,CH*.2,Math.max(24,560*got/max),24,12); c.add(pb);
+      c.add(txt(this,320,CH*.2+12,`${got}/${max} ⭐`,30,'#fff',{ox:0})); c.add(txt(this,415,-CH*.18,'›',96,'#fff'));
+      c.setSize(960,CH).setInteractive({useHandCursor:true}); c.on('pointerdown',()=>{ sfx.tap(); this.tweens.add({targets:c,scale:.96,duration:80,yoyo:true,onComplete:()=>go(this,'Map',{world:w})}); });
       popIn(this,c,150+i*120); });
     // footer: stickers, sound, grown-ups (press and hold)
-    button(this,250,1360,380,100,`🏆 Stickers ${S.stickers.length}`,0x4338ca,()=>this.stickers(),{size:38});
-    const snd=button(this,560,1360,160,100,S.muted?'🔇':'🔊',0x334155,()=>{ S.muted=!S.muted; Store.save(); snd.label.setText(S.muted?'🔇':'🔊'); },{size:44});
-    const gu=this.add.container(850,1360); gu.add([pill(this,340,100,0xffffff,.1,50,0xffffff,2),txt(this,0,-2,'👀 Grown-ups',36,'#e0e7ff')]); gu.setSize(340,100).setInteractive();
+    button(this,250,1375,380,96,`🏆 Stickers ${S.stickers.length}`,0x4338ca,()=>this.stickers(),{size:38});
+    const snd=button(this,560,1375,160,96,S.muted?'🔇':'🔊',0x334155,()=>{ S.muted=!S.muted; Store.save(); snd.label.setText(S.muted?'🔇':'🔊'); },{size:44});
+    const gu=this.add.container(850,1375); gu.add([pill(this,340,100,0xffffff,.1,50,0xffffff,2),txt(this,0,-2,'👀 Grown-ups',36,'#e0e7ff')]); gu.setSize(340,100).setInteractive();
     let timer=null; const fill=this.add.graphics(); gu.addAt(fill,1);
     gu.on('pointerdown',()=>{ const st={p:0}; timer=this.tweens.add({targets:st,p:1,duration:1100,onUpdate:()=>{ fill.clear(); fill.fillStyle(0xa78bfa,.5); fill.fillRoundedRect(-170,-50,340*st.p,100,50); },onComplete:()=>{ location.href='grownups.html'; }}); });
     const cancel=()=>{ if(timer&&timer.isPlaying()){ timer.stop(); fill.clear(); this.toast('Grown-ups: press and hold'); } timer=null; }; gu.on('pointerup',cancel); gu.on('pointerout',cancel);
   }
-  toast(msg){ const t=this.add.container(W/2,1240); t.add([pill(this,600,80,0x000000,.75,40),txt(this,0,-2,msg,32)]); this.tweens.add({targets:t,alpha:0,delay:1200,duration:400,onComplete:()=>t.destroy()}); }
+  toast(msg){ const t=this.add.container(W/2,1290).setDepth(90); t.add([pill(this,600,80,0x000000,.75,40),txt(this,0,-2,msg,32)]); this.tweens.add({targets:t,alpha:0,delay:1200,duration:400,onComplete:()=>t.destroy()}); }
   stickers(){ const c=this.add.container(0,0).setDepth(100); const dim=this.add.rectangle(W/2,H/2,W,H,0x000000,.7).setInteractive(); const all=WORLDS.flatMap(w=>w.levels.map(l=>l.sticker));
-    c.add([dim,pill(this,940,1000,0x1e1b4b,1,60,0xa78bfa,5).setPosition(W/2,H/2),txt(this,W/2,310,'🏆 Sticker Shelf',60,'#fde68a'),txt(this,W/2,385,'Get 3 stars on a level to win its sticker',30,'#c7d2fe')]);
-    all.forEach((e,i)=>{ const x=W/2-330+(i%5)*165, y=520+Math.floor(i/5)*170, has=Store.s.stickers.includes(e); c.add(pill(this,140,140,0xffffff,has?.16:.06,36).setPosition(x,y)); c.add(txt(this,x,y,has?e:'❔',has?84:60,'#fff',{shadow:false}).setAlpha(has?1:.35)); });
-    const b=button(this,W/2,1130,340,100,'Close',C.purple,()=>c.destroy()); c.add(b); }
+    c.add([dim,pill(this,960,1120,0x1e1b4b,1,60,0xa78bfa,5).setPosition(W/2,H/2),txt(this,W/2,250,'🏆 Sticker Shelf',60,'#fde68a'),txt(this,W/2,322,'Get 3 stars on a level to win its sticker',30,'#c7d2fe')]);
+    all.forEach((e,i)=>{ const x=W/2-362+(i%6)*145, y=440+Math.floor(i/6)*145, has=Store.s.stickers.includes(e); c.add(pill(this,126,126,0xffffff,has?.16:.06,32).setPosition(x,y)); c.add(txt(this,x,y,has?e:'❔',has?74:52,'#fff',{shadow:false}).setAlpha(has?1:.35)); });
+    const b=button(this,W/2,1200,340,96,'Close',C.purple,()=>c.destroy()); c.add(b); }
 }
 
 class MapScene extends Phaser.Scene{

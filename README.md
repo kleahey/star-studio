@@ -1,7 +1,7 @@
 # Star Studio
 
-A small offline-capable study game (Progressive Web App) built with Phaser 3. Two worlds, ten levels each:
-**Number Power** (place value, comparing, rounding, estimation, adding and subtracting) and **Solar System**.
+A small offline-capable study game (Progressive Web App) built with Phaser 3. Three worlds: **Number Power** (place value, comparing, rounding, estimation, adding and subtracting), **Solar System**,
+and **Virginia Studies** (Virginia's Indigenous People).
 
 - No build step: static files, ES modules, Phaser vendored in `vendor/`.
 - All art is generated SVG (`src/core/art.js`), all sound is synthesized (`src/core/sfx.js`). No asset downloads.
